@@ -1,0 +1,56 @@
+{
+  "schema_version": "tgcheckm8.ramdisk-pack.v1",
+  "pack_id": "replace-with-device-board-build-pack-id",
+  "route_reference_profile_id": "apple:a8-a11:gaster-reference",
+  "product_type": "REPLACE",
+  "board_config": "REPLACEap",
+  "cpid": "REPLACE",
+  "firmware_build": "REPLACE",
+  "environment": "ramdisk",
+  "pwn_provider": "gaster",
+  "sources": [
+    {
+      "source_id": "gaster",
+      "repository": "https://github.com/0x7ff/gaster",
+      "commit": "7fffffff38a1bed1cdc1c5bae0df70f14395129b",
+      "licence": "Apache-2.0",
+      "role": "pwned_dfu_provider"
+    },
+    {
+      "source_id": "sshrd-script",
+      "repository": "https://github.com/verygenericname/SSHRD_Script",
+      "commit": "d99ec4a19172b87d80fd9dea25eabf39291425a0",
+      "licence": "BSD-3-Clause",
+      "role": "known_working_build_and_boot_recipe"
+    }
+  ],
+  "assets": [],
+  "boot_recipe": {
+    "recipe_id": "verygenericname.sshrd.a8-a11.v1",
+    "source_commit": "d99ec4a19172b87d80fd9dea25eabf39291425a0",
+    "steps": [
+      {"kind": "require_checkpoint", "value": "pwned_dfu_verified"},
+      {"kind": "send_asset", "value": "ibss"},
+      {"kind": "wait_millis", "value": 2000},
+      {"kind": "send_asset", "value": "ibec"},
+      {"kind": "recovery_command", "value": "go_for_8010_8011_8012_8015_only"},
+      {"kind": "wait_millis", "value": 2000},
+      {"kind": "prove_checkpoint", "value": "patched_iboot_ready"},
+      {"kind": "send_asset", "value": "logo_if_present"},
+      {"kind": "recovery_command", "value": "setpicture_0x1_if_logo_present"},
+      {"kind": "send_asset", "value": "ramdisk"},
+      {"kind": "recovery_command", "value": "ramdisk"},
+      {"kind": "send_asset", "value": "devicetree"},
+      {"kind": "recovery_command", "value": "devicetree"},
+      {"kind": "send_asset", "value": "trustcache_if_required"},
+      {"kind": "recovery_command", "value": "firmware_if_trustcache_sent"},
+      {"kind": "send_asset", "value": "kernelcache"},
+      {"kind": "recovery_command", "value": "bootx"},
+      {"kind": "prove_checkpoint", "value": "ramdisk_ready"}
+    ]
+  },
+  "maturity": "discovered",
+  "execution_enabled": false,
+  "hardware_transcript_sha256": null,
+  "recovery_proof_sha256": null
+}
