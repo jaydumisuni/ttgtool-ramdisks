@@ -1,0 +1,104 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://thetechguyds.com/schemas/tgcheckm8-ramdisk-pack-v1.json",
+  "title": "TGCHECKM8 Ramdisk Provider Pack v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "pack_id",
+    "route_reference_profile_id",
+    "product_type",
+    "board_config",
+    "cpid",
+    "firmware_build",
+    "environment",
+    "pwn_provider",
+    "sources",
+    "assets",
+    "boot_recipe",
+    "maturity",
+    "execution_enabled"
+  ],
+  "properties": {
+    "schema_version": {"const": "tgcheckm8.ramdisk-pack.v1"},
+    "pack_id": {"type": "string", "pattern": "^[a-z0-9][a-z0-9._-]+$"},
+    "route_reference_profile_id": {"type": "string", "minLength": 1},
+    "product_type": {"type": "string", "pattern": "^(iPhone|iPad|iPod|AppleTV)[0-9]+,[0-9]+$"},
+    "board_config": {"type": "string", "pattern": "^[A-Za-z0-9]+ap$"},
+    "cpid": {"type": "string", "pattern": "^[0-9A-Fa-f]{4}$"},
+    "firmware_build": {"type": "string", "minLength": 1},
+    "environment": {"enum": ["ramdisk", "purple_diags", "jailbreak"]},
+    "pwn_provider": {"enum": ["arduino_max3421e", "ipwndfu", "gaster", "usbliter8_rp2350"]},
+    "sources": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["source_id", "repository", "commit", "licence", "role"],
+        "properties": {
+          "source_id": {"type": "string", "minLength": 1},
+          "repository": {"type": "string", "pattern": "^https://github\\.com/"},
+          "commit": {"type": "string", "pattern": "^[0-9A-Fa-f]{40}$"},
+          "licence": {"type": "string", "minLength": 1},
+          "role": {"type": "string", "minLength": 1}
+        }
+      }
+    },
+    "assets": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["role", "relative_path", "sha256", "byte_len", "redistribution_allowed"],
+        "properties": {
+          "role": {
+            "enum": [
+              "gaster_executable",
+              "irecovery_executable",
+              "ibss",
+              "ibec",
+              "logo",
+              "ramdisk",
+              "devicetree",
+              "trustcache",
+              "kernelcache"
+            ]
+          },
+          "relative_path": {"type": "string", "minLength": 1},
+          "sha256": {"type": "string", "pattern": "^[0-9A-Fa-f]{64}$"},
+          "byte_len": {"type": "integer", "minimum": 1},
+          "redistribution_allowed": {"const": false}
+        }
+      }
+    },
+    "boot_recipe": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["recipe_id", "source_commit", "steps"],
+      "properties": {
+        "recipe_id": {"const": "verygenericname.sshrd.a8-a11.v1"},
+        "source_commit": {"const": "d99ec4a19172b87d80fd9dea25eabf39291425a0"},
+        "steps": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["kind"],
+            "properties": {
+              "kind": {"enum": ["require_checkpoint", "send_asset", "recovery_command", "wait_millis", "prove_checkpoint"]},
+              "value": {"type": ["string", "integer"]}
+            }
+          }
+        }
+      }
+    },
+    "maturity": {"enum": ["discovered", "contract_valid", "simulation_tested", "hardware_tested", "beta", "stable"]},
+    "execution_enabled": {"const": false},
+    "hardware_transcript_sha256": {"type": ["string", "null"], "pattern": "^[0-9A-Fa-f]{64}$"},
+    "recovery_proof_sha256": {"type": ["string", "null"], "pattern": "^[0-9A-Fa-f]{64}$"}
+  }
+}
