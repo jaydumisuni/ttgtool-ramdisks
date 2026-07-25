@@ -1,0 +1,41 @@
+name: PyQt6 Linux Wheel Cache
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - ".github/workflows/pyqt6-wheel-cache.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  download:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+      - name: Download Linux PyQt6 wheels
+        run: |
+          mkdir -p wheelhouse
+          python -m pip download --only-binary=:all: --dest wheelhouse "PyQt6>=6.7,<7"
+          python - <<'PY'
+          from pathlib import Path
+          import hashlib, json
+          rows=[]
+          for path in sorted(Path('wheelhouse').glob('*')):
+              rows.append({'name':path.name,'bytes':path.stat().st_size,'sha256':hashlib.sha256(path.read_bytes()).hexdigest()})
+          Path('wheelhouse/manifest.json').write_text(json.dumps(rows,indent=2)+'\n')
+          print(json.dumps(rows,indent=2))
+          PY
+      - uses: actions/upload-artifact@v4
+        with:
+          name: pyqt6-linux-wheels-python313
+          path: wheelhouse/**
+          if-no-files-found: error
+          retention-days: 2
